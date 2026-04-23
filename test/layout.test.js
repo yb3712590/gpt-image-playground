@@ -43,12 +43,14 @@ test("hidden media and modules stay visually hidden despite component display st
 
 test("preview image fits inside the render frame without forced cropping", () => {
   const frameImageRule = html.match(/\.frame img\s*\{[\s\S]*?\n\s*\}/)?.[0] || "";
-  assert.match(frameImageRule, /max-width:\s*100%;/);
-  assert.match(frameImageRule, /max-height:\s*100%;/);
-  assert.match(frameImageRule, /width:\s*auto;/);
-  assert.match(frameImageRule, /height:\s*auto;/);
-  assert.doesNotMatch(frameImageRule, /\n\s*width:\s*100%;/);
-  assert.doesNotMatch(frameImageRule, /\n\s*height:\s*100%;/);
+  assert.match(frameImageRule, /position:\s*absolute;/);
+  assert.match(frameImageRule, /inset:\s*22px;/);
+  assert.match(frameImageRule, /width:\s*calc\(100% - 44px\);/);
+  assert.match(frameImageRule, /height:\s*calc\(100% - 44px\);/);
+  assert.match(frameImageRule, /object-fit:\s*contain;/);
+  assert.match(frameImageRule, /object-position:\s*center center;/);
+  assert.doesNotMatch(frameImageRule, /transform:/);
+  assert.doesNotMatch(html, /@keyframes imageReveal[\s\S]*transform:/);
   assert.match(html, /\.workspace\[data-state="succeeded"\] \.frame::after\s*\{[\s\S]*opacity:\s*0;/);
 });
 
