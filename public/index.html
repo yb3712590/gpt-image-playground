@@ -125,7 +125,7 @@
       .preview-panel {
         display: flex;
         flex-direction: column;
-        gap: 22px;
+        gap: 14px;
         padding: 28px;
       }
 
@@ -133,31 +133,9 @@
         position: relative;
         z-index: 1;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         gap: 18px;
-      }
-
-      .preview-kicker {
-        display: grid;
-        gap: 10px;
-      }
-
-      .preview-title {
-        margin: 0;
-        max-width: 13ch;
-        font-size: clamp(3rem, 6vw, 6rem);
-        line-height: 0.86;
-        letter-spacing: -0.07em;
-        font-weight: 800;
-      }
-
-      .preview-caption {
-        margin: 0;
-        max-width: 34rem;
-        color: var(--muted-strong);
-        font-size: 0.98rem;
-        line-height: 1.75;
       }
 
       .status-pill {
@@ -183,7 +161,7 @@
       .frame {
         position: relative;
         z-index: 1;
-        flex: 1;
+        flex: 1 1 auto;
         min-height: 0;
         display: grid;
         place-items: center;
@@ -733,13 +711,7 @@
       <section class="workspace" id="workspace" data-state="idle">
         <article class="panel preview-panel reveal">
           <div class="preview-header">
-            <div class="preview-kicker">
-              <p class="eyebrow">GPT Image 2 / 暗色图像工作台</p>
-              <h1 class="preview-title">构图. 排队. 生成.</h1>
-              <p class="preview-caption">
-                一个专注的图像生成工作台：输入提示词、选择真实渲染尺寸、查看队列进度，最终画面会稳定停留在左侧舞台。
-              </p>
-            </div>
+            <p class="eyebrow">GPT Image 2 / 暗色图像工作台</p>
             <span class="status-pill">
               <span class="status-dot" aria-hidden="true"></span>
               <span class="meta-label" id="stage-state">空闲</span>

@@ -64,7 +64,6 @@ test("dark workstation styles textarea scrollbar and status dot consistently", (
 
 test("page copy is localized to Chinese with two polished starter prompts", () => {
   assert.match(html, /<html lang="zh-CN">/);
-  assert.match(html, />构图\. 排队\. 生成\.</);
   assert.match(html, /真实摄影风格 ·/);
   assert.match(html, /二次元插画风格 ·/);
   assert.match(html, /电影级真实摄影/);
@@ -76,6 +75,16 @@ test("page copy is localized to Chinese with two polished starter prompts", () =
   assert.doesNotMatch(html, /Compose\. Queue\. Render\./);
   assert.doesNotMatch(html, /Product lab/);
   assert.doesNotMatch(html, /Editorial/);
+});
+
+test("preview panel keeps only the compact workstation label above the image", () => {
+  assert.match(html, /GPT Image 2 \/ 暗色图像工作台/);
+  assert.doesNotMatch(html, /class="preview-title"/);
+  assert.doesNotMatch(html, /class="preview-caption"/);
+  assert.doesNotMatch(html, /构图\. 排队\. 生成\./);
+  assert.doesNotMatch(html, /一个专注的图像生成工作台/);
+  assert.match(html, /\.preview-header\s*\{[\s\S]*align-items:\s*center;/);
+  assert.match(html, /\.frame\s*\{[\s\S]*flex:\s*1 1 auto;/);
 });
 
 test("desktop layout scales workspace height with clamp-based viewport sizing", () => {
