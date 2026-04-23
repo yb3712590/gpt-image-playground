@@ -23,6 +23,13 @@
       progressText: documentRef.getElementById("progress-text"),
       errorText: documentRef.getElementById("error-text"),
       image: documentRef.getElementById("result-image"),
+      placeholderText: documentRef.getElementById("placeholder-text"),
+      root: documentRef.getElementById("workspace"),
+      stageState: documentRef.getElementById("stage-state"),
+      characterCount: documentRef.getElementById("character-count"),
+      promptExampleButtons: Array.from(
+        documentRef.querySelectorAll(".prompt-example")
+      ),
       sizePresetInputs: Array.from(
         documentRef.querySelectorAll('input[name="size-preset"]')
       ),
@@ -41,12 +48,41 @@
       return selected ? selected.value : "square";
     }
 
+    function setUiState(state) {
+      if (resolvedElements.root) {
+        resolvedElements.root.dataset.state = state;
+      }
+      if (resolvedElements.stageState) {
+        resolvedElements.stageState.textContent = state;
+      }
+    }
+
+    function updateCharacterCount() {
+      if (!resolvedElements.characterCount) {
+        return;
+      }
+      const count = resolvedElements.promptInput.value.length;
+      resolvedElements.characterCount.textContent = `${count} 字`;
+    }
+
+    function bindPromptExamples() {
+      const buttons = resolvedElements.promptExampleButtons || [];
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          resolvedElements.promptInput.value = button.dataset.prompt || "";
+          updateCharacterCount();
+          resolvedElements.promptInput.focus();
+        });
+      });
+    }
+
     function setLocked(locked) {
       resolvedElements.promptInput.disabled = locked;
       resolvedElements.submitButton.disabled = locked;
+      resolvedElements.submitButton.dataset.state = locked ? "busy" : "ready";
       resolvedElements.submitButton.textContent = locked
-        ? "Generating..."
-        : "Generate image";
+        ? "生成中..."
+        : "生成图像";
     }
 
     function setStatus(text) {
@@ -55,14 +91,14 @@
 
     function setQueueText(queuePosition, queueCount, status) {
       if (status === "running") {
-        resolvedElements.queueValue.textContent = `Total in queue ${queueCount} · Your job is running`;
+        resolvedElements.queueValue.textContent = `${queueCount} 个任务 · 生成中`;
         return;
       }
       if (queuePosition > 0) {
-        resolvedElements.queueValue.textContent = `Total in queue ${queueCount} · Your position ${queuePosition}`;
+        resolvedElements.queueValue.textContent = `${queueCount} 个任务 · 第 ${queuePosition} 位`;
         return;
       }
-      resolvedElements.queueValue.textContent = `Total in queue ${queueCount}`;
+      resolvedElements.queueValue.textContent = `${queueCount} 个任务`;
     }
 
     function setError(message) {
@@ -75,14 +111,20 @@
         resolvedElements.image.src = "";
         resolvedElements.image.alt = "";
         resolvedElements.image.hidden = true;
+        if (resolvedElements.placeholderText) {
+          resolvedElements.placeholderText.hidden = false;
+        }
         return;
       }
 
       resolvedElements.image.src = source;
       resolvedElements.image.alt = prompt
-        ? `Generated image for prompt: ${prompt}`
-        : "Generated image";
+        ? `根据提示词生成的图像：${prompt}`
+        : "生成图像";
       resolvedElements.image.hidden = false;
+      if (resolvedElements.placeholderText) {
+        resolvedElements.placeholderText.hidden = true;
+      }
     }
 
     function setProgressVisible(visible) {
@@ -103,8 +145,8 @@
       resolvedElements.progressFill.style.width = `${(progress * 100).toFixed(1)}%`;
       resolvedElements.progressText.textContent =
         elapsedSeconds < PROGRESS_MAX_SECONDS
-          ? `Waiting ${elapsedSeconds}s · Usually completes in 60-120s.`
-          : `Waiting ${elapsedSeconds}s · Still processing.`;
+          ? `已等待 ${elapsedSeconds} 秒 · 通常 60-120 秒完成。`
+          : `已等待 ${elapsedSeconds} 秒 · 仍在处理中。`;
     }
 
     async function safeJson(response) {
@@ -131,17 +173,18 @@
 
     function renderJobState(payload) {
       setQueueText(payload.queuePosition || 0, payload.queueCount || 0, payload.status);
+      setUiState(payload.status || "idle");
 
       if (payload.status === "queued") {
-        setStatus("Queued. Your prompt is waiting for a worker slot.");
+        setStatus("已排队，等待通道。");
         return;
       }
       if (payload.status === "running") {
-        setStatus("Generating. The prompt editor stays locked until this finishes.");
+        setStatus("生成中，请稍候。");
         return;
       }
       if (payload.status === "succeeded") {
-        setStatus("Finished. The latest image is ready below.");
+        setStatus("已完成，图像已显示。");
         setImage(payload.imageDataUrl, resolvedElements.promptInput.value.trim());
         setError("");
         setLocked(false);
@@ -151,8 +194,8 @@
         return;
       }
 
-      setStatus("Generation failed.");
-      setError(payload.error || "Request failed");
+      setStatus("生成失败。");
+      setError(payload.error || "请求失败");
       setLocked(false);
       stopJobPolling();
       stopProgressTimer();
@@ -182,7 +225,7 @@
         renderJobState({
           status: "failed",
           queueCount: payload.queueCount || 0,
-          error: payload.error || "Polling failed",
+          error: payload.error || "轮询失败",
           queuePosition: 0,
         });
         return;
@@ -199,8 +242,9 @@
       const prompt = resolvedElements.promptInput.value.trim();
       const sizePreset = getSelectedSizePreset();
       if (!prompt) {
-        setError("Please enter a prompt before submitting.");
-        setStatus("Prompt required.");
+        setError("提交前请先输入提示词。");
+        setStatus("需要提示词。");
+        setUiState("failed");
         return;
       }
 
@@ -213,7 +257,8 @@
       resolvedElements.progressFill.style.width = "0%";
       resolvedElements.progressText.textContent = "";
       setLocked(true);
-      setStatus("Submitting prompt...");
+      setStatus("正在提交提示词...");
+      setUiState("queued");
 
       const response = await fetchImpl("/api/jobs", {
         method: "POST",
@@ -225,10 +270,11 @@
       const payload = await safeJson(response);
 
       if (!response.ok) {
-        setStatus("Submission failed.");
+        setStatus("提交失败。");
         setQueueText(0, payload.queueCount || 0, "failed");
-        setError(payload.error || "Request failed");
+        setError(payload.error || "请求失败");
         setLocked(false);
+        setUiState("failed");
         return;
       }
 
@@ -246,6 +292,10 @@
 
     function start() {
       resolvedElements.form.addEventListener("submit", handleSubmit);
+      resolvedElements.promptInput.addEventListener("input", updateCharacterCount);
+      updateCharacterCount();
+      bindPromptExamples();
+      setUiState("idle");
       refreshQueue();
       queueRefreshHandle = setIntervalImpl(() => refreshQueue(), QUEUE_REFRESH_MS);
       return {

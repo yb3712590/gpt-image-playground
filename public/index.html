@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,19 +7,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@500;700&family=Public+Sans:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --paper: #f8f4ef;
-        --ink: #171717;
-        --muted: #5b5551;
-        --line: rgba(23, 23, 23, 0.12);
-        --accent: #d52b6d;
-        --accent-soft: rgba(213, 43, 109, 0.12);
-        --panel: rgba(255, 252, 247, 0.84);
-        --shadow: 0 24px 80px rgba(23, 23, 23, 0.12);
+        --bg: #020617;
+        --panel: rgba(15, 23, 42, 0.86);
+        --panel-strong: #0f172a;
+        --panel-soft: #1e293b;
+        --ink: #f8fafc;
+        --muted: #94a3b8;
+        --muted-strong: #cbd5e1;
+        --line: rgba(148, 163, 184, 0.22);
+        --line-strong: rgba(34, 197, 94, 0.46);
+        --accent: #22c55e;
+        --accent-strong: #86efac;
+        --danger: #fb7185;
+        --warning: #facc15;
+        --shadow: 0 32px 100px rgba(0, 0, 0, 0.42);
         --workspace-min-height: 720px;
         --workspace-max-height: 980px;
       }
@@ -28,76 +34,86 @@
         box-sizing: border-box;
       }
 
+      [hidden] {
+        display: none !important;
+      }
+
       body {
         margin: 0;
         min-height: 100vh;
-        font-family: "Public Sans", sans-serif;
+        font-family: "Fira Sans", sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(circle at top left, rgba(213, 43, 109, 0.18), transparent 28%),
-          radial-gradient(circle at 85% 14%, rgba(23, 23, 23, 0.08), transparent 24%),
-          linear-gradient(180deg, #fbf8f3 0%, #f3ede6 100%);
+          radial-gradient(circle at 12% 16%, rgba(34, 197, 94, 0.2), transparent 28%),
+          radial-gradient(circle at 86% 8%, rgba(56, 189, 248, 0.16), transparent 26%),
+          radial-gradient(circle at 78% 86%, rgba(132, 204, 22, 0.14), transparent 30%),
+          linear-gradient(145deg, #020617 0%, #08111f 46%, #020617 100%);
       }
 
-      body::before {
+      body::before,
+      body::after {
         content: "";
         position: fixed;
         inset: 0;
-        background-image:
-          linear-gradient(rgba(23, 23, 23, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(23, 23, 23, 0.03) 1px, transparent 1px);
-        background-size: 28px 28px;
         pointer-events: none;
-        opacity: 0.5;
+      }
+
+      body::before {
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.055) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: radial-gradient(circle at center, black, transparent 78%);
+      }
+
+      body::after {
+        opacity: 0.18;
+        background-image: radial-gradient(rgba(248, 250, 252, 0.45) 0.7px, transparent 0.7px);
+        background-size: 5px 5px;
+        mix-blend-mode: screen;
       }
 
       main {
         position: relative;
-        max-width: 1120px;
+        max-width: 1240px;
         margin: 0 auto;
         padding: 40px 20px 72px;
       }
 
       .eyebrow,
       .meta-label {
-        font-size: 0.74rem;
+        font-family: "Fira Code", monospace;
+        font-size: 0.72rem;
         font-weight: 600;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
-        color: var(--muted);
+        color: var(--accent-strong);
       }
 
       .workspace {
         display: grid;
-        gap: 28px;
+        gap: 24px;
         height: clamp(var(--workspace-min-height), calc(100dvh - 112px), var(--workspace-max-height));
         grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
         align-items: stretch;
       }
 
       .panel {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(18px);
-      }
-
-      .panel {
         position: relative;
         overflow: hidden;
-        border-radius: 28px;
-        padding: 28px;
+        border: 1px solid var(--line);
+        border-radius: 32px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
       }
 
-      .panel::after {
+      .panel::before {
         content: "";
         position: absolute;
-        right: -48px;
-        top: -52px;
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(213, 43, 109, 0.24), transparent 68%);
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.11), transparent 38%);
         pointer-events: none;
       }
 
@@ -110,46 +126,283 @@
         display: flex;
         flex-direction: column;
         gap: 22px;
+        padding: 28px;
       }
 
       .preview-header {
+        position: relative;
+        z-index: 1;
         display: flex;
-        align-items: baseline;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 18px;
       }
 
       .preview-kicker {
         display: grid;
-        gap: 8px;
+        gap: 10px;
       }
 
       .preview-title {
         margin: 0;
-        font-family: "Libre Bodoni", serif;
-        font-size: clamp(2.5rem, 5vw, 4.4rem);
-        line-height: 0.92;
-        letter-spacing: -0.04em;
-        font-weight: 600;
+        max-width: 13ch;
+        font-size: clamp(3rem, 6vw, 6rem);
+        line-height: 0.86;
+        letter-spacing: -0.07em;
+        font-weight: 800;
       }
 
       .preview-caption {
         margin: 0;
-        max-width: 28rem;
+        max-width: 34rem;
+        color: var(--muted-strong);
+        font-size: 0.98rem;
+        line-height: 1.75;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-width: max-content;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 9px 13px;
+        background: rgba(2, 6, 23, 0.62);
+        color: var(--muted-strong);
+      }
+
+      .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 22px rgba(34, 197, 94, 0.9);
+      }
+
+      .frame {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-height: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        isolation: isolate;
+        padding: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at 50% 42%, rgba(34, 197, 94, 0.2), transparent 32%),
+          linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.92));
+      }
+
+      .frame::before {
+        content: "render stage";
+        position: absolute;
+        left: 20px;
+        top: 18px;
+        z-index: 2;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: rgba(2, 6, 23, 0.72);
+        color: var(--muted-strong);
+        font-family: "Fira Code", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .frame::after {
+        content: "";
+        position: absolute;
+        inset: 12%;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 26px;
+        background:
+          linear-gradient(90deg, transparent 49%, rgba(34, 197, 94, 0.14) 50%, transparent 51%),
+          linear-gradient(transparent 49%, rgba(34, 197, 94, 0.14) 50%, transparent 51%);
+        opacity: 0.6;
+        pointer-events: none;
+        transition: opacity 220ms ease;
+      }
+
+      .placeholder {
+        position: relative;
+        z-index: 1;
+        max-width: 23rem;
+        margin: 0;
+        padding: 0 20px;
+        text-align: center;
+        color: var(--muted-strong);
+        line-height: 1.75;
+      }
+
+      .frame img {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 20px;
+        animation: imageReveal 520ms ease both;
+      }
+
+      .workspace[data-state="queued"] .status-dot,
+      .workspace[data-state="running"] .status-dot {
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
+      .workspace[data-state="failed"] .status-dot {
+        background: var(--danger);
+        box-shadow: 0 0 20px rgba(251, 113, 133, 0.85);
+      }
+
+      .workspace[data-state="succeeded"] .frame {
+        border-color: var(--line-strong);
+        box-shadow: inset 0 0 60px rgba(34, 197, 94, 0.09);
+      }
+
+      .workspace[data-state="succeeded"] .frame::after {
+        opacity: 0;
+      }
+
+      .footer-note {
+        position: relative;
+        z-index: 1;
+        margin: 0;
         color: var(--muted);
-        font-size: 0.95rem;
-        line-height: 1.7;
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        line-height: 1.65;
       }
 
       .control-panel {
         display: flex;
         flex-direction: column;
-        gap: 18px;
+        gap: 12px;
+        padding: 20px;
       }
 
       .form-shell {
+        position: relative;
+        z-index: 1;
         display: grid;
-        gap: 18px;
+        gap: 14px;
+      }
+
+      .field-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .character-count {
+        color: var(--muted);
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+      }
+
+      label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 150px;
+        max-height: 250px;
+        resize: vertical;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) rgba(2, 6, 23, 0.72);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(2, 6, 23, 0.62);
+        padding: 18px 20px;
+        color: var(--ink);
+        outline: none;
+        font: inherit;
+        font-size: 0.98rem;
+        line-height: 1.7;
+        transition:
+          border-color 180ms ease,
+          box-shadow 180ms ease,
+          background-color 180ms ease;
+      }
+
+      textarea::placeholder {
+        color: rgba(203, 213, 225, 0.55);
+      }
+
+      textarea::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      textarea::-webkit-scrollbar-track {
+        border-radius: 999px;
+        background: rgba(2, 6, 23, 0.72);
+      }
+
+      textarea::-webkit-scrollbar-thumb {
+        border: 2px solid rgba(2, 6, 23, 0.72);
+        border-radius: 999px;
+        background: linear-gradient(180deg, var(--accent), #38bdf8);
+      }
+
+      textarea::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+
+      textarea:focus,
+      button:focus-visible,
+      .size-chip:has(input:focus-visible) {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+      }
+
+      textarea:disabled {
+        color: rgba(248, 250, 252, 0.58);
+        background: rgba(15, 23, 42, 0.5);
+      }
+
+      .prompt-examples {
+        display: grid;
+        gap: 8px;
+      }
+
+      .example-grid {
+        display: grid;
+        gap: 8px;
+      }
+
+      .prompt-example {
+        width: 100%;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 16px;
+        padding: 10px 12px;
+        background: rgba(30, 41, 59, 0.72);
+        color: var(--muted-strong);
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        text-align: left;
+        transition:
+          border-color 180ms ease,
+          background-color 180ms ease,
+          color 180ms ease;
+      }
+
+      .prompt-example:hover {
+        border-color: rgba(34, 197, 94, 0.58);
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--ink);
       }
 
       .size-presets {
@@ -165,8 +418,8 @@
       }
 
       .size-grid {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
       }
 
@@ -183,233 +436,185 @@
       }
 
       .size-chip {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        padding: 10px 14px;
-        border-radius: 999px;
+        display: grid;
+        gap: 9px;
+        min-height: 104px;
         border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.72);
-        color: var(--ink);
-        font-size: 0.84rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
+        border-radius: 20px;
+        padding: 13px;
+        background: rgba(2, 6, 23, 0.5);
         cursor: pointer;
         transition:
           border-color 180ms ease,
           background-color 180ms ease,
-          box-shadow 180ms ease,
           transform 180ms ease;
       }
 
       .size-chip:hover {
         transform: translateY(-1px);
-        border-color: rgba(213, 43, 109, 0.24);
-      }
-
-      .size-chip input:focus-visible + span {
-        outline: 2px solid rgba(213, 43, 109, 0.28);
-      }
-
-      .size-chip input:checked + span {
-        color: #fff7fb;
+        border-color: rgba(34, 197, 94, 0.52);
       }
 
       .size-chip:has(input:checked) {
-        border-color: rgba(23, 23, 23, 0.95);
-        background: var(--ink);
-        box-shadow: 0 12px 22px rgba(23, 23, 23, 0.16);
+        border-color: var(--accent);
+        background: rgba(34, 197, 94, 0.12);
       }
 
-      label {
-        font-size: 0.88rem;
-        font-weight: 600;
+      .ratio-box {
+        display: grid;
+        place-items: center;
+        min-height: 34px;
+      }
+
+      .ratio-shape {
+        display: block;
+        border: 1px solid rgba(134, 239, 172, 0.74);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(56, 189, 248, 0.12));
+      }
+
+      .ratio-square {
+        width: 34px;
+        height: 34px;
+      }
+
+      .ratio-portrait {
+        width: 26px;
+        height: 38px;
+      }
+
+      .ratio-landscape {
+        width: 42px;
+        height: 30px;
+      }
+
+      .size-name {
+        display: block;
         color: var(--ink);
+        font-weight: 700;
       }
 
-      textarea {
-        width: 100%;
-        min-height: 190px;
-        resize: vertical;
-        border: 1px solid var(--line);
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.84);
-        padding: 20px 22px;
+      .size-code {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-family: "Fira Code", monospace;
+        font-size: 0.68rem;
+      }
+
+      button[type="submit"] {
+        appearance: none;
+        border: 1px solid rgba(134, 239, 172, 0.42);
+        border-radius: 999px;
+        padding: 16px 22px;
+        background: linear-gradient(135deg, #22c55e, #84cc16);
+        color: #04130a;
+        cursor: pointer;
         font: inherit;
-        font-size: 1rem;
-        line-height: 1.7;
-        color: var(--ink);
-        outline: none;
+        font-weight: 800;
+        letter-spacing: 0.01em;
         transition:
-          border-color 180ms ease,
+          filter 180ms ease,
           box-shadow 180ms ease,
           transform 180ms ease;
       }
 
-      textarea:focus,
-      button:focus-visible {
-        border-color: rgba(213, 43, 109, 0.6);
-        box-shadow: 0 0 0 4px rgba(213, 43, 109, 0.14);
-      }
-
-      textarea:disabled {
-        color: rgba(23, 23, 23, 0.55);
-        background: rgba(255, 255, 255, 0.52);
-      }
-
-      button {
-        appearance: none;
-        border: none;
-        border-radius: 999px;
-        padding: 16px 24px;
-        background: var(--ink);
-        color: #fff7fb;
-        font: inherit;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        cursor: pointer;
-        transition:
-          background-color 180ms ease,
-          transform 180ms ease,
-          box-shadow 180ms ease;
-      }
-
-      button:hover:not(:disabled) {
-        background: #000000;
+      button[type="submit"]:hover:not(:disabled) {
+        filter: brightness(1.08);
         transform: translateY(-1px);
-        box-shadow: 0 14px 30px rgba(23, 23, 23, 0.18);
+        box-shadow: 0 18px 42px rgba(34, 197, 94, 0.25);
       }
 
-      button:disabled {
+      button[type="submit"]:disabled {
         cursor: progress;
-        opacity: 0.72;
+        filter: saturate(0.72);
+        opacity: 0.82;
+      }
+
+      button[type="submit"][data-state="busy"] {
+        animation: glow 1.4s ease-in-out infinite;
       }
 
       .metrics {
+        position: relative;
+        z-index: 1;
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
+        gap: 10px;
+      }
+
+      .metric,
+      .progress-module,
+      .note,
+      .error {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(2, 6, 23, 0.48);
       }
 
       .metric {
-        border-radius: 22px;
-        padding: 18px;
-        background: rgba(255, 255, 255, 0.68);
-        border: 1px solid var(--line);
+        padding: 12px 14px;
       }
 
       .metric strong {
         display: block;
-        margin-top: 10px;
-        font-size: 1rem;
-        line-height: 1.5;
-      }
-
-      .note {
-        margin: 0;
-        color: var(--muted);
+        margin-top: 7px;
+        color: var(--ink);
         font-size: 0.9rem;
-        line-height: 1.6;
+        line-height: 1.32;
       }
 
       .progress-module {
+        position: relative;
+        z-index: 1;
         display: grid;
-        gap: 10px;
-        padding: 14px 16px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.66);
-        border: 1px solid var(--line);
+        gap: 8px;
+        min-height: 74px;
+        padding: 12px 16px 14px;
       }
 
       .progress-track {
         width: 100%;
-        height: 8px;
+        height: 9px;
         overflow: hidden;
         border-radius: 999px;
-        background: rgba(23, 23, 23, 0.08);
+        background: rgba(148, 163, 184, 0.16);
       }
 
       .progress-fill {
         width: 0%;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, #171717 0%, #d52b6d 100%);
+        background: linear-gradient(90deg, var(--accent), #38bdf8);
         transition: width 300ms ease;
+      }
+
+      .progress-text,
+      .note {
+        color: var(--muted-strong);
+        font-size: 0.8rem;
+        line-height: 1.45;
       }
 
       .progress-text {
         margin: 0;
-        color: var(--muted);
-        font-size: 0.84rem;
-        line-height: 1.55;
+      }
+
+      .note {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        padding: 10px 13px;
       }
 
       .error {
-        margin: 0;
-        padding: 14px 16px;
-        border-radius: 18px;
-        background: var(--accent-soft);
-        border: 1px solid rgba(213, 43, 109, 0.22);
-        color: #8f1143;
-      }
-
-      .frame {
         position: relative;
-        flex: 1;
-        min-height: 0;
-        border-radius: 28px;
-        border: 1px solid var(--line);
-        background:
-          linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(247, 237, 232, 0.92)),
-          repeating-linear-gradient(
-            45deg,
-            rgba(23, 23, 23, 0.02),
-            rgba(23, 23, 23, 0.02) 4px,
-            transparent 4px,
-            transparent 14px
-          );
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-      }
-
-      .frame::before {
-        content: "latest render";
-        position: absolute;
-        left: 20px;
-        top: 18px;
-        padding: 7px 11px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid var(--line);
-        font-size: 0.74rem;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        color: var(--muted);
-      }
-
-      .placeholder {
-        max-width: 20rem;
+        z-index: 1;
         margin: 0;
-        padding: 0 16px;
-        text-align: center;
-        color: var(--muted);
-        line-height: 1.7;
-      }
-
-      .frame img {
-        display: block;
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-      }
-
-      .footer-note {
-        margin-top: 18px;
-        color: var(--muted);
-        font-size: 0.82rem;
-        letter-spacing: 0.04em;
+        padding: 13px 15px;
+        border-color: rgba(251, 113, 133, 0.42);
+        background: rgba(251, 113, 133, 0.1);
+        color: #fecdd3;
       }
 
       .reveal {
@@ -420,14 +625,10 @@
         animation-delay: 80ms;
       }
 
-      .delay-2 {
-        animation-delay: 160ms;
-      }
-
       @keyframes rise {
         from {
           opacity: 0;
-          transform: translateY(28px);
+          transform: translateY(24px);
         }
 
         to {
@@ -436,9 +637,45 @@
         }
       }
 
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.65;
+          transform: scale(1);
+        }
+
+        50% {
+          opacity: 1;
+          transform: scale(1.35);
+        }
+      }
+
+      @keyframes glow {
+        0%,
+        100% {
+          box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+        }
+
+        50% {
+          box-shadow: 0 0 34px rgba(34, 197, 94, 0.36);
+        }
+      }
+
+      @keyframes imageReveal {
+        from {
+          opacity: 0;
+          transform: scale(0.985);
+        }
+
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
       @media (max-width: 880px) {
         main {
-          padding: 24px 16px 48px;
+          padding: 24px 14px 48px;
         }
 
         .workspace {
@@ -451,8 +688,34 @@
           min-height: auto;
         }
 
+        .preview-header {
+          display: grid;
+        }
+
+        .frame {
+          min-height: 420px;
+        }
+
         .metrics {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .preview-panel,
+        .control-panel {
+          padding: 18px;
+          border-radius: 24px;
+        }
+
+        .size-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .size-chip {
+          min-height: 82px;
+          grid-template-columns: 48px 1fr;
+          align-items: center;
         }
       }
 
@@ -469,98 +732,106 @@
   </head>
   <body>
     <main>
-      <section class="workspace">
+      <section class="workspace" id="workspace" data-state="idle">
         <article class="panel preview-panel reveal">
           <div class="preview-header">
             <div class="preview-kicker">
-              <p class="eyebrow">GPT Image 2 / render preview / queue aware</p>
-              <h1 class="preview-title">Latest render, full stage.</h1>
+              <p class="eyebrow">GPT Image 2 / 暗色图像工作台</p>
+              <h1 class="preview-title">构图. 排队. 生成.</h1>
               <p class="preview-caption">
-                The image preview stays on stage while the right-side controls handle
-                prompt input, size selection, queue state, and wait progress.
+                一个专注的图像生成工作台：输入提示词、选择真实渲染尺寸、查看队列进度，最终画面会稳定停留在左侧舞台。
               </p>
             </div>
-            <span class="meta-label">session isolated</span>
+            <span class="status-pill">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span class="meta-label" id="stage-state">空闲</span>
+            </span>
           </div>
           <div class="frame">
             <p class="placeholder" id="placeholder-text">
-              The finished image appears here immediately. Until then, this stage
-              stays ready for the next render.
+              生成完成的画面会出现在这里。等待期间，你可以在右侧查看队列和预计耗时，舞台会保持当前会话状态。
             </p>
-            <img
-              id="result-image"
-              src=""
-              alt=""
-              hidden
-              loading="lazy"
-            />
+            <img id="result-image" src="" alt="" hidden loading="lazy" />
           </div>
           <p class="footer-note">
-            Powered by a deployment-local config file, an in-memory queue that counts
-            waiting and running jobs together, and one active job per session view.
+            会话隔离队列 · 单任务生成 · 仅展示真实唯一尺寸
           </p>
         </article>
 
         <aside class="panel control-panel reveal delay-1">
           <form class="form-shell" id="prompt-form">
-            <div>
-              <label for="prompt-input">Image prompt</label>
+            <div class="field-head">
+              <label for="prompt-input">图像提示词</label>
+              <span class="character-count" id="character-count">0 字</span>
             </div>
             <textarea
               id="prompt-input"
               name="prompt"
-              placeholder="A paper-cut editorial portrait lit by hard afternoon sun, creamy shadows, quiet luxury print finish"
+              placeholder="电影级真实摄影：雨后东京街角的一家深夜拉面店，玻璃窗上有细密水珠和霓虹倒影，一位穿深色风衣的年轻女性坐在靠窗位置，手边是一碗热气升腾的拉面，环境光来自红蓝霓虹与暖色店灯，浅景深，35mm 镜头，真实皮肤质感，胶片颗粒，高动态范围，杂志封面级构图"
             ></textarea>
+            <div class="prompt-examples">
+              <span class="meta-label">预置提示词</span>
+              <div class="example-grid">
+                <button
+                  class="prompt-example"
+                  type="button"
+                  data-prompt="电影级真实摄影：雨后东京街角的一家深夜拉面店，玻璃窗上有细密水珠和霓虹倒影，一位穿深色风衣的年轻女性坐在靠窗位置，手边是一碗热气升腾的拉面，环境光来自红蓝霓虹与暖色店灯，浅景深，35mm 镜头，真实皮肤质感，胶片颗粒，高动态范围，杂志封面级构图"
+                >
+                  真实摄影风格 · 雨夜拉面店、霓虹反光、35mm 胶片质感
+                </button>
+                <button
+                  class="prompt-example"
+                  type="button"
+                  data-prompt="精致二次元插画：樱花季的未来学院天台，银白短发少女穿着改良水手服与透明机能外套，身后是漂浮的全息城市地图和黄昏云层，微风吹起发丝与丝带，清澈大眼，高级动画电影光影，细腻线稿，柔和渐变上色，丰富背景细节，干净构图，超高完成度"
+                >
+                  二次元插画风格 · 未来学院天台、樱花、动画电影光影
+                </button>
+              </div>
+            </div>
             <fieldset class="size-presets">
-              <legend class="meta-label">size</legend>
+              <legend class="meta-label">真实渲染尺寸</legend>
               <div class="size-grid">
                 <label class="size-chip">
                   <input class="visually-hidden" type="radio" name="size-preset" value="square" />
-                  <span>方形</span>
+                  <span class="ratio-box" aria-hidden="true"><span class="ratio-shape ratio-square"></span></span>
+                  <span><span class="size-name">方形</span><span class="size-code">1024 × 1024</span></span>
                 </label>
                 <label class="size-chip">
                   <input class="visually-hidden" type="radio" name="size-preset" value="portrait" checked />
-                  <span>竖版（3:4）</span>
-                </label>
-                <label class="size-chip">
-                  <input class="visually-hidden" type="radio" name="size-preset" value="story" />
-                  <span>故事（9:16）</span>
+                  <span class="ratio-box" aria-hidden="true"><span class="ratio-shape ratio-portrait"></span></span>
+                  <span><span class="size-name">竖图</span><span class="size-code">1024 × 1536</span></span>
                 </label>
                 <label class="size-chip">
                   <input class="visually-hidden" type="radio" name="size-preset" value="landscape" />
-                  <span>横屏（4:3）</span>
-                </label>
-                <label class="size-chip">
-                  <input class="visually-hidden" type="radio" name="size-preset" value="widescreen" />
-                  <span>宽屏（16:9）</span>
+                  <span class="ratio-box" aria-hidden="true"><span class="ratio-shape ratio-landscape"></span></span>
+                  <span><span class="size-name">横图</span><span class="size-code">1536 × 1024</span></span>
                 </label>
               </div>
             </fieldset>
-            <button id="submit-button" type="submit">Generate image</button>
+            <button id="submit-button" type="submit" data-state="ready">生成图像</button>
           </form>
           <div class="metrics" aria-live="polite">
             <div class="metric">
-              <span class="meta-label">status</span>
-              <strong id="status-text">Waiting for your first prompt.</strong>
+              <span class="meta-label">状态</span>
+              <strong id="status-text">等待输入第一条提示词。</strong>
             </div>
             <div class="metric">
-              <span class="meta-label">queue total</span>
-              <strong id="queue-value">Total in queue 0</strong>
+              <span class="meta-label">队列总数</span>
+              <strong id="queue-value">队列中共 0 个任务</strong>
             </div>
           </div>
           <div class="progress-module" id="progress-wrap" hidden>
-            <span class="meta-label">estimated wait</span>
+            <span class="meta-label">预计等待</span>
             <div class="progress-track" aria-hidden="true">
               <div class="progress-fill" id="progress-fill"></div>
             </div>
             <p class="progress-text" id="progress-text"></p>
           </div>
           <p class="note">
-            The editor locks after submit and unlocks only when the current job
-            finishes or fails.
+            任务提交后编辑器会暂时锁定，确保当前浏览器窗口只追踪一个正在生成的画面。
           </p>
           <p class="note">
-            GPT-style size labels are mapped to the closest supported render size.
+            “故事”和“宽屏”是重复映射尺寸，前端已隐藏，仅保留真实唯一的三种尺寸。
           </p>
           <p class="error" id="error-text" hidden></p>
         </aside>
@@ -570,16 +841,6 @@
     <script src="/app.js"></script>
     <script>
       window.ImageDemoApp.start();
-
-      const resultImage = document.getElementById("result-image");
-      const placeholderText = document.getElementById("placeholder-text");
-      const observer = new MutationObserver(() => {
-        placeholderText.hidden = !resultImage.hidden;
-      });
-      observer.observe(resultImage, {
-        attributes: true,
-        attributeFilter: ["hidden"],
-      });
     </script>
   </body>
 </html>
