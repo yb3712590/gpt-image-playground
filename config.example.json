@@ -1,0 +1,9 @@
+{
+  "baseUrl": "https://api.openai.com/v1",
+  "apiKey": "sk-...",
+  "host": "0.0.0.0",
+  "port": 7654,
+  "concurrency": 2,
+  "rateLimitMax": 3,
+  "rateLimitWindowMinutes": 10
+}

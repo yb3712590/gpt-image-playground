@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPT Image Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@500;700&family=Public+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f8f4ef;
+        --ink: #171717;
+        --muted: #5b5551;
+        --line: rgba(23, 23, 23, 0.12);
+        --accent: #d52b6d;
+        --accent-soft: rgba(213, 43, 109, 0.12);
+        --panel: rgba(255, 252, 247, 0.84);
+        --shadow: 0 24px 80px rgba(23, 23, 23, 0.12);
+        --workspace-min-height: 720px;
+        --workspace-max-height: 980px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Public Sans", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(213, 43, 109, 0.18), transparent 28%),
+          radial-gradient(circle at 85% 14%, rgba(23, 23, 23, 0.08), transparent 24%),
+          linear-gradient(180deg, #fbf8f3 0%, #f3ede6 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(23, 23, 23, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(23, 23, 23, 0.03) 1px, transparent 1px);
+        background-size: 28px 28px;
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      main {
+        position: relative;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+
+      .eyebrow,
+      .meta-label {
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .workspace {
+        display: grid;
+        gap: 28px;
+        height: clamp(var(--workspace-min-height), calc(100dvh - 112px), var(--workspace-max-height));
+        grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+        align-items: stretch;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .panel {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        padding: 28px;
+      }
+
+      .panel::after {
+        content: "";
+        position: absolute;
+        right: -48px;
+        top: -52px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(213, 43, 109, 0.24), transparent 68%);
+        pointer-events: none;
+      }
+
+      .preview-panel,
+      .control-panel {
+        height: 100%;
+      }
+
+      .preview-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .preview-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .preview-kicker {
+        display: grid;
+        gap: 8px;
+      }
+
+      .preview-title {
+        margin: 0;
+        font-family: "Libre Bodoni", serif;
+        font-size: clamp(2.5rem, 5vw, 4.4rem);
+        line-height: 0.92;
+        letter-spacing: -0.04em;
+        font-weight: 600;
+      }
+
+      .preview-caption {
+        margin: 0;
+        max-width: 28rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+
+      .control-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .form-shell {
+        display: grid;
+        gap: 18px;
+      }
+
+      .size-presets {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      .size-presets legend {
+        padding: 0;
+      }
+
+      .size-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .size-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--ink);
+        font-size: 0.84rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        transition:
+          border-color 180ms ease,
+          background-color 180ms ease,
+          box-shadow 180ms ease,
+          transform 180ms ease;
+      }
+
+      .size-chip:hover {
+        transform: translateY(-1px);
+        border-color: rgba(213, 43, 109, 0.24);
+      }
+
+      .size-chip input:focus-visible + span {
+        outline: 2px solid rgba(213, 43, 109, 0.28);
+      }
+
+      .size-chip input:checked + span {
+        color: #fff7fb;
+      }
+
+      .size-chip:has(input:checked) {
+        border-color: rgba(23, 23, 23, 0.95);
+        background: var(--ink);
+        box-shadow: 0 12px 22px rgba(23, 23, 23, 0.16);
+      }
+
+      label {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 190px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 20px 22px;
+        font: inherit;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--ink);
+        outline: none;
+        transition:
+          border-color 180ms ease,
+          box-shadow 180ms ease,
+          transform 180ms ease;
+      }
+
+      textarea:focus,
+      button:focus-visible {
+        border-color: rgba(213, 43, 109, 0.6);
+        box-shadow: 0 0 0 4px rgba(213, 43, 109, 0.14);
+      }
+
+      textarea:disabled {
+        color: rgba(23, 23, 23, 0.55);
+        background: rgba(255, 255, 255, 0.52);
+      }
+
+      button {
+        appearance: none;
+        border: none;
+        border-radius: 999px;
+        padding: 16px 24px;
+        background: var(--ink);
+        color: #fff7fb;
+        font: inherit;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition:
+          background-color 180ms ease,
+          transform 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      button:hover:not(:disabled) {
+        background: #000000;
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(23, 23, 23, 0.18);
+      }
+
+      button:disabled {
+        cursor: progress;
+        opacity: 0.72;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .metric {
+        border-radius: 22px;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.68);
+        border: 1px solid var(--line);
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .progress-module {
+        display: grid;
+        gap: 10px;
+        padding: 14px 16px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.66);
+        border: 1px solid var(--line);
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(23, 23, 23, 0.08);
+      }
+
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #171717 0%, #d52b6d 100%);
+        transition: width 300ms ease;
+      }
+
+      .progress-text {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.55;
+      }
+
+      .error {
+        margin: 0;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: var(--accent-soft);
+        border: 1px solid rgba(213, 43, 109, 0.22);
+        color: #8f1143;
+      }
+
+      .frame {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        border-radius: 28px;
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(247, 237, 232, 0.92)),
+          repeating-linear-gradient(
+            45deg,
+            rgba(23, 23, 23, 0.02),
+            rgba(23, 23, 23, 0.02) 4px,
+            transparent 4px,
+            transparent 14px
+          );
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .frame::before {
+        content: "latest render";
+        position: absolute;
+        left: 20px;
+        top: 18px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid var(--line);
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+      }
+
+      .placeholder {
+        max-width: 20rem;
+        margin: 0;
+        padding: 0 16px;
+        text-align: center;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
+      .footer-note {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+      }
+
+      .reveal {
+        animation: rise 720ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      .delay-1 {
+        animation-delay: 80ms;
+      }
+
+      .delay-2 {
+        animation-delay: 160ms;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(28px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 880px) {
+        main {
+          padding: 24px 16px 48px;
+        }
+
+        .workspace {
+          height: auto;
+          grid-template-columns: 1fr;
+        }
+
+        .preview-panel,
+        .control-panel {
+          min-height: auto;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="workspace">
+        <article class="panel preview-panel reveal">
+          <div class="preview-header">
+            <div class="preview-kicker">
+              <p class="eyebrow">GPT Image 2 / render preview / queue aware</p>
+              <h1 class="preview-title">Latest render, full stage.</h1>
+              <p class="preview-caption">
+                The image preview stays on stage while the right-side controls handle
+                prompt input, size selection, queue state, and wait progress.
+              </p>
+            </div>
+            <span class="meta-label">session isolated</span>
+          </div>
+          <div class="frame">
+            <p class="placeholder" id="placeholder-text">
+              The finished image appears here immediately. Until then, this stage
+              stays ready for the next render.
+            </p>
+            <img
+              id="result-image"
+              src=""
+              alt=""
+              hidden
+              loading="lazy"
+            />
+          </div>
+          <p class="footer-note">
+            Powered by a deployment-local config file, an in-memory queue that counts
+            waiting and running jobs together, and one active job per session view.
+          </p>
+        </article>
+
+        <aside class="panel control-panel reveal delay-1">
+          <form class="form-shell" id="prompt-form">
+            <div>
+              <label for="prompt-input">Image prompt</label>
+            </div>
+            <textarea
+              id="prompt-input"
+              name="prompt"
+              placeholder="A paper-cut editorial portrait lit by hard afternoon sun, creamy shadows, quiet luxury print finish"
+            ></textarea>
+            <fieldset class="size-presets">
+              <legend class="meta-label">size</legend>
+              <div class="size-grid">
+                <label class="size-chip">
+                  <input class="visually-hidden" type="radio" name="size-preset" value="square" />
+                  <span>方形</span>
+                </label>
+                <label class="size-chip">
+                  <input class="visually-hidden" type="radio" name="size-preset" value="portrait" checked />
+                  <span>竖版（3:4）</span>
+                </label>
+                <label class="size-chip">
+                  <input class="visually-hidden" type="radio" name="size-preset" value="story" />
+                  <span>故事（9:16）</span>
+                </label>
+                <label class="size-chip">
+                  <input class="visually-hidden" type="radio" name="size-preset" value="landscape" />
+                  <span>横屏（4:3）</span>
+                </label>
+                <label class="size-chip">
+                  <input class="visually-hidden" type="radio" name="size-preset" value="widescreen" />
+                  <span>宽屏（16:9）</span>
+                </label>
+              </div>
+            </fieldset>
+            <button id="submit-button" type="submit">Generate image</button>
+          </form>
+          <div class="metrics" aria-live="polite">
+            <div class="metric">
+              <span class="meta-label">status</span>
+              <strong id="status-text">Waiting for your first prompt.</strong>
+            </div>
+            <div class="metric">
+              <span class="meta-label">queue total</span>
+              <strong id="queue-value">Total in queue 0</strong>
+            </div>
+          </div>
+          <div class="progress-module" id="progress-wrap" hidden>
+            <span class="meta-label">estimated wait</span>
+            <div class="progress-track" aria-hidden="true">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p class="progress-text" id="progress-text"></p>
+          </div>
+          <p class="note">
+            The editor locks after submit and unlocks only when the current job
+            finishes or fails.
+          </p>
+          <p class="note">
+            GPT-style size labels are mapped to the closest supported render size.
+          </p>
+          <p class="error" id="error-text" hidden></p>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+    <script>
+      window.ImageDemoApp.start();
+
+      const resultImage = document.getElementById("result-image");
+      const placeholderText = document.getElementById("placeholder-text");
+      const observer = new MutationObserver(() => {
+        placeholderText.hidden = !resultImage.hidden;
+      });
+      observer.observe(resultImage, {
+        attributes: true,
+        attributeFilter: ["hidden"],
+      });
+    </script>
+  </body>
+</html>

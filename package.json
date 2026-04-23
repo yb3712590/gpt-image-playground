@@ -1,0 +1,14 @@
+{
+  "name": "gpt-image-playground",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "bootstrap-config": "node scripts/bootstrap-config.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "toml": "^3.0.0"
+  }
+}
