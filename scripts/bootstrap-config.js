@@ -52,6 +52,7 @@ function buildConfigFromCodex({ codexHome } = {}) {
     concurrency: 2,
     rateLimitMax: 3,
     rateLimitWindowMinutes: 10,
+    requestTimeoutMs: 360000,
   };
 }
 

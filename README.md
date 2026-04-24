@@ -37,7 +37,8 @@
   "port": 7654,
   "concurrency": 2,
   "rateLimitMax": 3,
-  "rateLimitWindowMinutes": 10
+  "rateLimitWindowMinutes": 10,
+  "requestTimeoutMs": 360000
 }
 ```
 
@@ -50,6 +51,7 @@
 - `concurrency`: 最大并行生成数
 - `rateLimitMax`: 每个 IP 在窗口内允许的请求次数
 - `rateLimitWindowMinutes`: 限流窗口，单位分钟
+- `requestTimeoutMs`: 上游图片请求超时时间，单位毫秒，默认 `360000`
 
 ## 尺寸选项
 

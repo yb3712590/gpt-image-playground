@@ -7,6 +7,7 @@ const CONFIG_PATH = path.join(__dirname, "config.json");
 const SESSION_COOKIE = "image_playground_session";
 const JOB_POLL_INTERVAL_MS = 2000;
 const REQUEST_TIMEOUT_MS = 180000;
+const DEFAULT_REQUEST_TIMEOUT_MS = 360000;
 const DEFAULT_HOST = "0.0.0.0";
 const DEFAULT_PORT = 7654;
 const DEFAULT_SIZE_PRESET = "square";
@@ -71,6 +72,7 @@ function validateConfig(config) {
     concurrency: Number(config.concurrency),
     rateLimitMax: Number(config.rateLimitMax),
     rateLimitWindowMinutes: Number(config.rateLimitWindowMinutes),
+    requestTimeoutMs: Number(config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS),
   };
 
   if (!normalized.baseUrl) {
@@ -87,6 +89,7 @@ function validateConfig(config) {
     normalized.rateLimitWindowMinutes,
     "rateLimitWindowMinutes"
   );
+  validatePositiveInteger(normalized.requestTimeoutMs, "requestTimeoutMs");
 
   return normalized;
 }
@@ -292,6 +295,7 @@ function createApp({
           prompt: job.prompt,
           sizePreset: job.sizePreset,
           fetchImpl,
+          timeoutMs: resolvedConfig.requestTimeoutMs,
         })
       )
         .then((imageDataUrl) => {
@@ -412,6 +416,7 @@ async function startServer(options = {}) {
 
 module.exports = {
   CONFIG_PATH,
+  DEFAULT_REQUEST_TIMEOUT_MS,
   DEFAULT_HOST,
   DEFAULT_PORT,
   DEFAULT_SIZE_PRESET,

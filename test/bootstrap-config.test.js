@@ -46,6 +46,7 @@ base_url = "https://example.test/v1"
     concurrency: 2,
     rateLimitMax: 3,
     rateLimitWindowMinutes: 10,
+    requestTimeoutMs: 360000,
   });
 });
 
@@ -59,6 +60,7 @@ test("writeConfigFile writes config.json to the target directory", () => {
     concurrency: 2,
     rateLimitMax: 3,
     rateLimitWindowMinutes: 10,
+    requestTimeoutMs: 360000,
   };
 
   const outputPath = writeConfigFile({ targetDir, config, force: true });

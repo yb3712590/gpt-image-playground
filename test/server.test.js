@@ -78,6 +78,7 @@ async function startTestServer(overrides = {}) {
     concurrency: 2,
     rateLimitMax: 3,
     rateLimitWindowMinutes: 10,
+    requestTimeoutMs: 360000,
     ...(overrides.config || {}),
   };
 
@@ -134,7 +135,7 @@ test("loadConfig throws when config.json is missing or invalid", () => {
   );
 });
 
-test("loadConfig defaults port to 7654 when config omits it", () => {
+test("loadConfig applies optional runtime defaults when config omits them", () => {
   const configPath = path.join(makeTempDir(), "config.json");
   fs.writeFileSync(
     configPath,
@@ -151,6 +152,7 @@ test("loadConfig defaults port to 7654 when config omits it", () => {
 
   assert.equal(loaded.host, DEFAULT_HOST);
   assert.equal(loaded.port, 7654);
+  assert.equal(loaded.requestTimeoutMs, 360000);
 });
 
 test("startServer listens on config.host and config.port when no explicit override is passed", async () => {
@@ -435,6 +437,36 @@ test("generateImageViaApi maps every size preset to the expected upstream size",
   }
 
   assert.deepEqual(seenSizes, presets.map(([, size]) => size));
+});
+
+test("createApp forwards configured request timeout to the image generator", async () => {
+  const calls = [];
+  const started = await startTestServer({
+    config: { requestTimeoutMs: 360000 },
+    generateImage: async (options) => {
+      calls.push(options.timeoutMs);
+      return "data:image/png;base64,AAAA";
+    },
+  });
+
+  try {
+    const client = createClient(started.baseUrl);
+    const created = await client.json("/api/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: "square paper sculpture",
+        sizePreset: "square",
+      }),
+    });
+
+    assert.equal(created.status, 202);
+
+    await waitFor(() => (calls.length === 1 ? true : null));
+    assert.deepEqual(calls, [360000]);
+  } finally {
+    await started.close();
+  }
 });
 
 test("job creation forwards sizePreset to the image generator", async () => {
